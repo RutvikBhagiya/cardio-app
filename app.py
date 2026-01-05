@@ -28,10 +28,11 @@ def clear_results():
     if "results" in st.session_state:
         st.session_state.results = None
 
-# --- CSS (glass + app theme) ---
+# --- CSS ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
 
     html, body, [data-testid="stAppViewContainer"] {
         font-family: 'Space Grotesk', sans-serif;
@@ -65,6 +66,44 @@ st.markdown("""
         background: linear-gradient(90deg, #22d3ee, #818cf8);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        animation: glow 2s ease-in-out infinite alternate;
+        text-shadow: 0 0 20px rgba(34, 211, 238, 0.5);
+    }
+
+    @keyframes glow {
+        from { filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.3)); }
+        to { filter: drop-shadow(0 0 25px rgba(129, 140, 248, 0.6)); }
+    }
+
+    .nav-btn {
+        background: rgba(17, 24, 39, 0.8) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        backdrop-filter: blur(20px) !important;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        transform: translateY(0);
+        position: relative;
+        overflow: hidden;
+    }
+    .nav-btn:hover {
+        background: rgba(34, 211, 238, 0.15) !important;
+        border-color: #22d3ee !important;
+        transform: translateY(-4px) !important;
+        box-shadow: 0 20px 40px rgba(34, 211, 238, 0.2) !important;
+    }
+    .nav-btn:active {
+        transform: translateY(-2px) !important;
+        transition: transform 0.1s !important;
+    }
+    .nav-btn::before {
+        content: '';
+        position: absolute;
+        top: 0; left: -100%;
+        width: 100%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+    .nav-btn:hover::before {
+        left: 100%;
     }
 
     .section-header {
@@ -74,7 +113,25 @@ st.markdown("""
         margin-bottom: 20px;
     }
 
-    /* make bordered containers look like glass cards */
+    [data-testid="stSlider"] .stSlider > div > div > div:last-child {
+        background: transparent !important;
+        border: 2px solid #22d3ee !important;
+        border-radius: 50% !important;
+        box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.2) !important;
+    }
+
+    [data-testid="stSlider"] input[type=range]::-webkit-slider-thumb {
+        background: #22d3ee !important;
+        border: none !important;
+    }
+
+    [data-testid="NumberInput"] input {
+        background: rgba(17, 24, 39, 0.8) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #f8fafc !important;
+        backdrop-filter: blur(10px) !important;
+    }
+
     [data-testid="stContainer"][data-border="true"] {
         background: rgba(17, 24, 39, 0.95);
         border: 1px solid rgba(255, 255, 255, 0.1);
@@ -85,7 +142,6 @@ st.markdown("""
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
     }
 
-    .stSlider > div > div > div { background: #22d3ee !important; }
     .stButton > button {
         background: linear-gradient(135deg, #0891b2 0%, #4f46e5 100%) !important;
         border-radius: 12px !important;
@@ -94,6 +150,34 @@ st.markdown("""
         font-weight: 700 !important;
         transition: 0.4s all ease !important;
         width: 100%;
+    }
+
+    .metric-card {
+        background: linear-gradient(135deg, rgba(34, 211, 238, 0.1), rgba(129, 140, 248, 0.1)) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        backdrop-filter: blur(15px) !important;
+        transition: all 0.3s ease !important;
+        text-align: center !important;
+        padding: 25px !important;
+        border-radius: 16px !important;
+        position: relative !important;
+        overflow: hidden !important;
+    }
+    .metric-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    .metric-card:hover {
+        transform: translateY(-8px) !important;
+        box-shadow: 0 25px 50px rgba(34, 211, 238, 0.2) !important;
+        border-color: #22d3ee !important;
+    }
+    .metric-card:hover::before {
+        opacity: 1;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -108,16 +192,16 @@ if "results" not in st.session_state:
 def draw_nav():
     c1, c2, c3, c4 = st.columns([2.5, 1, 1, 1])
     with c1:
-        st.markdown('<div class="brand-logo">CARDIO.SHIELD AI</div>', unsafe_allow_html=True)
+        st.markdown('<div class="brand-logo animate__animated animate__pulse">CARDIO.SHIELD AI</div>', unsafe_allow_html=True)
     with c2:
-        if st.button("DIAGNOSTIC", use_container_width=True):
+        if st.button("DIAGNOSTIC", use_container_width=True, key="nav_diag", help="Neural Risk Assessment"):
             st.session_state.page = "Diagnostic"
     with c3:
-        if st.button("ANALYTICS", use_container_width=True):
+        if st.button("ANALYTICS", use_container_width=True, key="nav_ana", help="Feature Analysis"):
             st.session_state.page = "Analytics"
     with c4:
-        if st.button("INTELLIGENCE", use_container_width=True):
-            st.session_state.page = "Intelligence"
+        if st.button("ABOUT", use_container_width=True, key="nav_about", help="Project Information"):
+            st.session_state.page = "About"
 
 draw_nav()
 st.markdown("<br>", unsafe_allow_html=True)
@@ -157,11 +241,10 @@ def create_spider_chart(data):
     )
     return fig
 
-# --- PAGE: DIAGNOSTIC ---
+# --- DIAGNOSTIC PAGE ---
 if st.session_state.page == "Diagnostic":
     col_in, col_res = st.columns([1.2, 1], gap="large")
 
-    # LEFT: inputs inside a bordered container, styled as glass by CSS
     with col_in:
         with st.container(border=True):
             st.markdown(
@@ -227,7 +310,6 @@ if st.session_state.page == "Diagnostic":
                 }
                 st.rerun()
 
-    # RIGHT: result cards
     with col_res:
         if st.session_state.results:
             res = st.session_state.results
@@ -261,95 +343,168 @@ if st.session_state.page == "Diagnostic":
             </div>
             """, unsafe_allow_html=True)
 
-# --- PAGE: ANALYTICS ---
+# --- ANALYTICS PAGE ---
 elif st.session_state.page == "Analytics":
-    if hasattr(model, 'feature_importances_'):
-        feat_names = [
-            'Gender', 'Systolic BP', 'Diastolic BP', 'Cholesterol',
-            'Glucose', 'Smoking', 'Alcohol', 'Activity', 'Age', 'BMI', 'Pulse Pressure'
-        ]
-        imp_df = pd.DataFrame(
-            {'Factor': feat_names, 'Importance': model.feature_importances_}
-        ).sort_values('Importance', ascending=True)
+    # ROW 1: full-width feature sensitivity
+    with st.container():
+        st.markdown("""
+        <div class="glass-card">
+            <div class="section-header">📊 Neural Feature Sensitivity</div>
+        """, unsafe_allow_html=True)
 
-        fig = go.Figure()
-        for i in range(len(imp_df)):
-            fig.add_shape(
-                type='line',
-                x0=0, y0=i,
-                x1=imp_df['Importance'].iloc[i], y1=i,
-                line=dict(color="#19D5DC", width=3)
+        if hasattr(model, 'feature_importances_'):
+            feat_names = [
+                'Gender', 'Systolic BP', 'Diastolic BP', 'Cholesterol',
+                'Glucose', 'Smoking', 'Alcohol', 'Activity', 'Age', 'BMI', 'Pulse Pressure'
+            ]
+            imp_df = pd.DataFrame(
+                {'Factor': feat_names, 'Importance': model.feature_importances_}
+            ).sort_values('Importance', ascending=True)
+
+            fig = go.Figure()
+            for i in range(len(imp_df)):
+                fig.add_shape(
+                    type='line',
+                    x0=0, y0=i,
+                    x1=imp_df['Importance'].iloc[i], y1=i,
+                    line=dict(color="#19D5DC", width=3)
+                )
+
+            fig.add_trace(go.Scatter(
+                x=imp_df['Importance'],
+                y=imp_df['Factor'],
+                mode='markers',
+                marker=dict(
+                    size=18,
+                    color=imp_df['Importance'],
+                    colorscale=[[0, "#E09999"], [1, "#f90101"]],
+                    line=dict(color="#09cbfb", width=3)
+                ),
+                hovertemplate="<b>%{y}</b>: %{x:.4f}<extra></extra>"
+            ))
+            fig.update_layout(
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)',
+                showlegend=False,
+                height=450,
+                margin=dict(l=20, r=20, t=20, b=10),
+                xaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.05)'),
+                yaxis=dict(showgrid=False)
             )
 
-        fig.add_trace(go.Scatter(
-            x=imp_df['Importance'],
-            y=imp_df['Factor'],
-            mode='markers',
-            marker=dict(
-                size=18,
-                color=imp_df['Importance'],
-                colorscale=[[0, "#E09999"], [1, "#f90101"]],
-                line=dict(color="#09cbfb", width=3)
-            ),
-            hovertemplate="<b>%{y}</b>: %{x:.4f}<extra></extra>"
-        ))
-        fig.update_layout(
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
-            showlegend=False,
-            height=500,
-            margin=dict(l=20, r=20, t=20, b=20),
-            xaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.05)'),
-            yaxis=dict(showgrid=False)
-        )
+            st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+        else:
+            st.markdown("""
+            <div style="height: 350px; display: flex; align-items: center; justify-content: center;">
+                <div style="text-align: center;">
+                    <div style="font-size: 4rem; margin-bottom: 20px;">📊</div>
+                    <div style="font-size: 1.2rem; color: #22d3ee; margin-bottom: 10px;">Feature Analysis</div>
+                    <p style="opacity: 0.7;">Feature importances are not available for this model.</p>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
 
+        st.markdown("</div>", unsafe_allow_html=True)  # close glass-card
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # ROW 2: two cards side by side
+    col_perf, col_conf = st.columns(2, gap="large")
+
+    # MODEL PERFORMANCE CARD
+    with col_perf:
         st.markdown("""
-        <div class="glass-card">
-            <div class="section-header">📊 Neural Feature Sensitivity</div>
+        <div class="glass-card" style="height: 520px; padding: 30px;">
+            <div class="section-header" style="margin-bottom: 25px;">🎯 Model Performance</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div class="metric-card">
+                    <div style="font-size: 1.8rem; font-weight: 700; color: #22d3ee;">73%</div>
+                    <div style="font-size: 0.85rem; opacity: 0.8; margin-top: 5px;">ACCURACY</div>
+                </div>
+                <div class="metric-card">
+                    <div style="font-size: 1.8rem; font-weight: 700; color: #10b981;">68.1%</div>
+                    <div style="font-size: 0.85rem; opacity: 0.8; margin-top: 5px;">RECALL</div>
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="metric-card">
+                    <div style="font-size: 1.8rem; font-weight: 700; color: #f59e0b;">71.2%</div>
+                    <div style="font-size: 0.85rem; opacity: 0.8; margin-top: 5px;">F1-SCORE</div>
+                </div>
+                <div class="metric-card">
+                    <div style="font-size: 1.8rem; font-weight: 700; color: #ef4444;">74.7%</div>
+                    <div style="font-size: 0.85rem; opacity: 0.8; margin-top: 5px;">PRECISION</div>
+                </div>
+            </div>
         </div>
         """, unsafe_allow_html=True)
 
-        st.plotly_chart(fig, use_container_width=True)
-
+    # CONFUSION MATRIX CARD
+    with col_conf:
         st.markdown("""
-        <div class="glass-card" style="margin-top:20px; padding:20px; background:rgba(129, 140, 248, 0.1); border-radius:15px; border-left:4px solid #818cf8;">
-            <p style="margin:0; font-size:0.95rem; opacity:0.9;">
-                <b>Insight:</b> Patients with consistently elevated <b>systolic pressure</b> and <b>BMI</b> above the healthy range show a significantly higher predicted risk, even when laboratory markers like <b>cholesterol</b> and <b>glucose</b> are only mildly abnorma
-            </p>
+        <div class="glass-card" style="height: 520px; padding: 30px;">
+            <div class="section-header" style="margin-bottom: 25px;">📈 Confusion Matrix</div>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                <div style="text-align: center; padding: 20px; background: rgba(16, 185, 129, 0.15); border-radius: 16px; border: 2px solid rgba(16, 185, 129, 0.4);">
+                    <div style="font-size: 2.2rem; font-weight: 800; color: #10b981; margin-bottom: 8px;">5366</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9; font-weight: 600; letter-spacing: 1px;">True Positive</div>
+                </div>
+                <div style="text-align: center; padding: 20px; background: rgba(239, 68, 68, 0.15); border-radius: 16px; border: 2px solid rgba(239, 68, 68, 0.4);">
+                    <div style="font-size: 2.2rem; font-weight: 800; color: #ef4444; margin-bottom: 8px;">1536</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9; font-weight: 600; letter-spacing: 1px;">False Positive</div>
+                </div>
+                <div style="text-align: center; padding: 20px; background: rgba(239, 68, 68, 0.15); border-radius: 16px; border: 2px solid rgba(239, 68, 68, 0.4);">
+                    <div style="font-size: 2.2rem; font-weight: 800; color: #ef4444; margin-bottom: 8px;">2126</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9; font-weight: 600; letter-spacing: 1px;">False Negative</div>
+                </div>
+                <div style="text-align: center; padding: 20px; background: rgba(16, 185, 129, 0.15); border-radius: 16px; border: 2px solid rgba(16, 185, 129, 0.4);">
+                    <div style="font-size: 2.2rem; font-weight: 800; color: #10b981; margin-bottom: 8px;">4546</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9; font-weight: 600; letter-spacing: 1px;">True Negative</div>
+                </div>
+            </div>
         </div>
         """, unsafe_allow_html=True)
-    else:
-        st.markdown("""
-        <div class="glass-card">
-            <div class="section-header">📊 Neural Feature Sensitivity</div>
-            <p style="opacity:0.7;">Feature importances are not available for this model.</p>
-        </div>
-        """, unsafe_allow_html=True)
 
-# --- PAGE: INTELLIGENCE ---
+    # bottom insight
+    st.markdown("""
+    <div class="glass-card" style="margin-top: 25px; padding: 25px; background: rgba(129, 140, 248, 0.08); border-radius: 15px; border-left: 4px solid #818cf8;">
+        <p style="margin: 0; font-size: 0.95rem; opacity: 0.9; line-height: 1.6;">
+            <b>Key Insight:</b> Patients with consistently elevated <b>systolic pressure</b> and <b>BMI</b> above the healthy range show a significantly higher predicted risk, even when laboratory markers like <b>cholesterol</b> and <b>glucose</b> are only mildly abnormal.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+# --- ABOUT PAGE ---
 else:
     c1, c2 = st.columns(2)
     with c1:
         st.markdown("""
-        <div class="glass-card" style="height: 350px;">
+        <div class="glass-card" style="height: 420px;">
             <div class="section-header">🧠 Neural Engine</div>
             <p style='opacity:0.8;'>This system utilizes a <b>Random Forest Ensemble</b>. Unlike linear regression, this architecture handles complex feature interactions, such as the relationship between high BMI and increased Systolic Pressure over time.</p>
-            <p style='color:#818cf8; font-weight:600;'>Validation Method: Cross-Entropy Recall</p>
+            <p style='opacity:0.8;'>Arroundly on <b>54296</b> records trained and tested with <b>13574</b> records</p>
+            <p style='color:#818cf8; font-weight:600;'>Validation Method: Cross-Validation Recall</p>
+            <p style='opacity:0.8;'><b>Feature Handling:</b> No feature scaling required. Tree-based splits operate directly on raw clinical values.</p>
+            <p style='opacity:0.75; font-size:13px;'>Outlier filtering applied to BMI and Blood Pressure ranges to improve data reliability and model stability.</p>
+
         </div>
         """, unsafe_allow_html=True)
     with c2:
         st.markdown("""
-        <div class="glass-card" style="height: 350px; border-left: 5px solid #ef4444;">
+        <div class="glass-card" style="height: 420px; border-left: 5px solid #ef4444;">
             <div class="section-header" style="color:#ef4444;">⚠️ Project Protocol</div>
-            <p style='opacity:0.8;'><b>Classification:</b> Placement Level Academic Project.</p>
+            <p style='opacity:0.8;'><b>Classification:</b> Beginner Level Academic Project.</p>
             <p style='opacity:0.8;'><b>Accuracy:</b> Clinically simulated for educational demonstration. Not for medical diagnosis.</p>
             <p style='opacity:0.8;'><b>Privacy:</b> Zero-Retention. No data is stored on the server.</p>
+            <p style='opacity:0.8;'><b>Model Behavior:</b> Balanced learning observed with minimal overfitting between training and testing data.</p>
+            <p style='opacity:0.75; font-size:13px;'>This system is designed to demonstrate machine-learning workflows including feature engineering, hyperparameter tuning, and cross-validation.</p>
+
         </div>
         """, unsafe_allow_html=True)
 
 st.markdown("""
 <p style='text-align: center; opacity: 0.3; font-size: 0.75rem; margin-top: 50px; line-height: 1.4;'>
-    CARDIO.SHIELD ENGINE v2.6 • 2026 © Rutvik Bhagiya<br>
+    CARDIO.SHIELD • 2026 © Rutvik Bhagiya<br>
     <span style='font-size: 0.65rem;'>
         Academic Research Project • ML-Powered Cardiovascular Risk Assessment
     </span>
