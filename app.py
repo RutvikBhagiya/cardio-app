@@ -25,10 +25,11 @@ model = load_model()
 
 # --- CALLBACK TO CLEAR RESULTS ---
 def clear_results():
-    if "results" in st.session_state:
-        st.session_state.results = None
+    st.session_state.results = None
+    st.session_state.static_spider_fig = None
+    st.session_state.prediction_made = False
 
-# --- CSS ---
+# --- CSS (SAME AS BEFORE) ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
@@ -182,11 +183,15 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- STATE ---
+# --- INITIALIZE STATE ---
 if "page" not in st.session_state:
     st.session_state.page = "Diagnostic"
 if "results" not in st.session_state:
     st.session_state.results = None
+if "static_spider_fig" not in st.session_state:
+    st.session_state.static_spider_fig = None
+if "prediction_made" not in st.session_state:
+    st.session_state.prediction_made = False
 
 # --- NAVIGATION ---
 def draw_nav():
@@ -196,6 +201,8 @@ def draw_nav():
     with c2:
         if st.button("DIAGNOSTIC", use_container_width=True, key="nav_diag", help="Neural Risk Assessment"):
             st.session_state.page = "Diagnostic"
+            if "prediction_made" in st.session_state:
+                st.session_state.prediction_made = False
     with c3:
         if st.button("ANALYTICS", use_container_width=True, key="nav_ana", help="Feature Analysis"):
             st.session_state.page = "Analytics"
@@ -206,9 +213,10 @@ def draw_nav():
 draw_nav()
 st.markdown("<br>", unsafe_allow_html=True)
 
-# --- SPIDER CHART ---
+# --- SPIDER CHART FUNCTION ---
 def create_spider_chart(data):
     categories = ['Age', 'BMI', 'Systolic', 'Diastolic', 'Cholesterol']
+
     values = [
         data['age'] / 100,
         min(data['bmi'] / 45, 1),
@@ -216,6 +224,7 @@ def create_spider_chart(data):
         min(data['dbp'] / 140, 1),
         data['chol'] / 3
     ]
+
     values += values[:1]
     categories += categories[:1]
 
@@ -227,6 +236,7 @@ def create_spider_chart(data):
         fillcolor='rgba(34, 211, 238, 0.25)',
         marker=dict(color='#818cf8', size=8)
     ))
+
     fig.update_layout(
         polar=dict(
             radialaxis=dict(visible=False),
@@ -239,6 +249,7 @@ def create_spider_chart(data):
         margin=dict(t=30, b=30),
         height=380
     )
+
     return fig
 
 # --- DIAGNOSTIC PAGE ---
@@ -252,16 +263,19 @@ if st.session_state.page == "Diagnostic":
                 unsafe_allow_html=True
             )
 
+            # **DISABLE SLIDERS WHEN PREDICTION MADE** - Key fix!
+            disabled = st.session_state.prediction_made
+
             c1, c2 = st.columns(2)
             with c1:
-                age = st.slider("Age", 18, 100, 50, on_change=clear_results)
-                height = st.number_input("Height (cm)", 100, 250, 175, on_change=clear_results)
-                sbp = st.slider("Systolic BP", 80, 220, 120, on_change=clear_results)
+                age = st.slider("Age", 18, 100, 50, on_change=clear_results, disabled=disabled)
+                height = st.number_input("Height (cm)", 100, 250, 175, on_change=clear_results, disabled=disabled)
+                sbp = st.slider("Systolic BP", 80, 220, 120, on_change=clear_results, disabled=disabled)
             with c2:
-                gender_val = st.selectbox("Gender", ["Female", "Male"], on_change=clear_results)
+                gender_val = st.selectbox("Gender", ["Female", "Male"], on_change=clear_results, disabled=disabled)
                 gender = 1 if gender_val == "Female" else 2
-                weight = st.number_input("Weight (kg)", 30, 200, 75, on_change=clear_results)
-                dbp = st.slider("Diastolic BP", 40, 140, 80, on_change=clear_results)
+                weight = st.number_input("Weight (kg)", 30, 200, 75, on_change=clear_results, disabled=disabled)
+                dbp = st.slider("Diastolic BP", 40, 140, 80, on_change=clear_results, disabled=disabled)
 
             st.markdown("<hr style='opacity:0.1'>", unsafe_allow_html=True)
 
@@ -271,9 +285,9 @@ if st.session_state.page == "Diagnostic":
             )
             lab_c1, lab_c2 = st.columns(2)
             with lab_c1:
-                chol = st.select_slider("Cholesterol", [1, 2, 3], value=1, on_change=clear_results)
+                chol = st.select_slider("Cholesterol", [1, 2, 3], value=1, on_change=clear_results, disabled=disabled)
             with lab_c2:
-                gluc = st.select_slider("Glucose", [1, 2, 3], value=1, on_change=clear_results)
+                gluc = st.select_slider("Glucose", [1, 2, 3], value=1, on_change=clear_results, disabled=disabled)
 
             st.markdown(
                 "<p style='font-size:0.85rem; opacity:0.6; margin-top:15px; margin-bottom:5px;'>Lifestyle Factors</p>",
@@ -281,26 +295,29 @@ if st.session_state.page == "Diagnostic":
             )
             life_c1, life_c2, life_c3 = st.columns(3)
             with life_c1:
-                active = st.toggle("Active", True, on_change=clear_results)
+                active = st.toggle("Active", True, on_change=clear_results, disabled=disabled)
             with life_c2:
-                smoke = st.toggle("Smoking", on_change=clear_results)
+                smoke = st.toggle("Smoking", on_change=clear_results, disabled=disabled)
             with life_c3:
-                alco = st.toggle("Alcohol Usage", on_change=clear_results)
+                alco = st.toggle("Alcohol Usage", on_change=clear_results, disabled=disabled)
 
             st.markdown("<br>", unsafe_allow_html=True)
 
-            if st.button("COMPUTE RISK PROJECTION", use_container_width=True):
+            # **PREDICTION BUTTON - NO RERUN()**
+            if st.button("🔬 COMPUTE RISK PROJECTION", use_container_width=True, disabled=st.session_state.prediction_made):
                 bmi = weight / ((height / 100) ** 2)
                 bp_diff = sbp - dbp
                 features = pd.DataFrame(
-                    [[gender, sbp, dbp, chol, gluc, int(smoke), int(alco), int(active), age, bmi, bp_diff]],
+                    [[gender, sbp, dbp, chol, gluc, int(smoke), int(alco),
+                    int(active), age, bmi, bp_diff]],
                     columns=[
                         'gender', 'ap_hi', 'ap_lo', 'cholesterol', 'gluc',
                         'smoke', 'alco', 'active', 'age_years', 'bmi', 'bp_diff'
                     ]
                 )
                 prob = model.predict_proba(features)[0][1] * 100
-                st.session_state.results = {
+                
+                final_results = {
                     "prob": prob,
                     "bmi": bmi,
                     "age": age,
@@ -308,10 +325,12 @@ if st.session_state.page == "Diagnostic":
                     "dbp": dbp,
                     "chol": chol
                 }
-                st.rerun()
+                st.session_state.results = final_results
+                st.session_state.static_spider_fig = create_spider_chart(final_results)
+                st.session_state.prediction_made = True
 
     with col_res:
-        if st.session_state.results:
+        if st.session_state.prediction_made and st.session_state.results and st.session_state.static_spider_fig:
             res = st.session_state.results
             color = "#ef4444" if res['prob'] > 70 else "#facc15" if res['prob'] > 35 else "#22c55e"
 
@@ -325,7 +344,15 @@ if st.session_state.page == "Diagnostic":
             </div>
             """, unsafe_allow_html=True)
 
-            st.plotly_chart(create_spider_chart(res), use_container_width=True, config={'displayModeBar': False})
+            st.plotly_chart(
+                st.session_state.static_spider_fig,
+                use_container_width=True,
+                config={
+                    'displayModeBar': False,    
+                    'scrollZoom': False,
+                    'staticPlot': True
+                }
+            )
 
             st.markdown(f"""
             <div class="glass-card" style='display:flex; justify-content:space-around; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px;'>
@@ -334,6 +361,7 @@ if st.session_state.page == "Diagnostic":
                 <div><p style='margin:0; opacity:0.5; font-size:0.8rem;'>BP</p><b>{res['sbp']}/{res['dbp']}</b></div>
             </div>
             """, unsafe_allow_html=True)
+            
         else:
             st.markdown("""
             <div class="glass-card" style="height: 580px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-style: dashed; border-color: rgba(34, 211, 238, 0.2);">
@@ -486,7 +514,6 @@ else:
             <p style='color:#818cf8; font-weight:600;'>Validation Method: Cross-Validation Recall</p>
             <p style='opacity:0.8;'><b>Feature Handling:</b> No feature scaling required. Tree-based splits operate directly on raw clinical values.</p>
             <p style='opacity:0.75; font-size:13px;'>Outlier filtering applied to BMI and Blood Pressure ranges to improve data reliability and model stability.</p>
-
         </div>
         """, unsafe_allow_html=True)
     with c2:
@@ -498,7 +525,6 @@ else:
             <p style='opacity:0.8;'><b>Privacy:</b> Zero-Retention. No data is stored on the server.</p>
             <p style='opacity:0.8;'><b>Model Behavior:</b> Balanced learning observed with minimal overfitting between training and testing data.</p>
             <p style='opacity:0.75; font-size:13px;'>This system is designed to demonstrate machine-learning workflows including feature engineering, hyperparameter tuning, and cross-validation.</p>
-
         </div>
         """, unsafe_allow_html=True)
 
