@@ -76,8 +76,18 @@ st.markdown("""
         from { filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.3)); }
         to { filter: drop-shadow(0 0 25px rgba(129, 140, 248, 0.6)); }
     }
+    
+    label, .stMarkdown p {
+        color: #e5e7eb !important;
+        opacity: 1 !important;
+    }
 
-    /* Buttons (including nav) styled to be readable on mobile */
+    [data-testid="stWidgetLabel"] {
+        color: #f1f5f9 !important;
+        font-weight: 500;
+    }
+
+
     .stButton > button {
         background: linear-gradient(135deg, #0891b2 0%, #4f46e5 100%) !important;
         color: #ffffff !important;
@@ -233,6 +243,28 @@ st.markdown("""
         -webkit-tap-highlight-color: rgba(255,255,255,0.04);
         touch-action: manipulation;
     }
+            
+    /* ---------- FORCE BUTTON TEXT VISIBILITY ---------- */
+    .stButton > button,
+    .stButton > button span,
+    .stButton > button div {
+        color: #ffffff !important;
+        opacity: 1 !important;
+    }
+
+    /* ---------- INPUT FIELD VISIBILITY ---------- */
+    input, textarea, select {
+        background-color: rgba(15, 23, 42, 0.95) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(148, 163, 184, 0.35) !important;
+    }
+
+    /* Slider & number labels */
+    [data-testid="stWidgetLabel"] {
+        color: #e6eef8 !important;
+        opacity: 1 !important;
+    }
+
 
 </style>
 """, unsafe_allow_html=True)
@@ -276,7 +308,7 @@ def create_spider_chart(data):
         min(data['bmi'] / 45, 1),
         min(data['sbp'] / 220, 1),
         min(data['dbp'] / 140, 1),
-        data['chol'] / 3
+        (data['chol'] - 1) / 2
     ]
 
     values += values[:1]
@@ -431,7 +463,7 @@ elif st.session_state.page == "Analytics":
     with st.container():
         st.markdown("""
         <div class="glass-card">
-            <div class="section-header">📊 Neural Feature Sensitivity</div>
+            <div class="section-header">🧠 Neural Feature Sensitivity</div>
         """, unsafe_allow_html=True)
 
         if hasattr(model, 'feature_importances_'):
@@ -474,7 +506,17 @@ elif st.session_state.page == "Analytics":
                 yaxis=dict(showgrid=False)
             )
 
-            st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+            st.plotly_chart(
+                fig,
+                use_container_width=True,
+                config={
+                    "displayModeBar": False,
+                    "scrollZoom": False,
+                    "doubleClick": False,
+                    "staticPlot": True
+                }
+            )
+
         else:
             st.markdown("""
             <div style="height: 350px; display: flex; align-items: center; justify-content: center;">
