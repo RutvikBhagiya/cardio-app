@@ -1,3 +1,4 @@
+# paste this full file (only CSS changed; rest of your app logic preserved)
 import streamlit as st
 import joblib
 import pandas as pd
@@ -29,7 +30,7 @@ def clear_results():
     st.session_state.static_spider_fig = None
     st.session_state.prediction_made = False
 
-# --- CSS (SAME AS BEFORE) ---
+# --- CSS (RESPONSIVE TWEAKS ADDED) ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
@@ -69,11 +70,37 @@ st.markdown("""
         -webkit-text-fill-color: transparent;
         animation: glow 2s ease-in-out infinite alternate;
         text-shadow: 0 0 20px rgba(34, 211, 238, 0.5);
+        white-space: nowrap;
     }
 
     @keyframes glow {
         from { filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.3)); }
         to { filter: drop-shadow(0 0 25px rgba(129, 140, 248, 0.6)); }
+    }
+
+    /* Buttons (including nav) styled to be readable on mobile */
+    .stButton > button {
+        background: linear-gradient(135deg, #0891b2 0%, #4f46e5 100%) !important;
+        color: #ffffff !important;
+        border-radius: 12px !important;
+        border: 1px solid rgba(255, 255, 255, 0.06) !important;
+        height: 3.5rem !important;
+        font-weight: 700 !important;
+        transition: 0.4s all ease !important;
+        padding: 0.5rem 0.75rem !important;
+        min-width: 0 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        box-shadow: none !important;
+        z-index: 5;
+    }
+    .stButton > button:hover {
+        transform: translateY(-4px) !important;
+        box-shadow: 0 20px 40px rgba(34, 211, 238, 0.12) !important;
+    }
+    .stButton > button:active {
+        transform: translateY(-2px) !important;
     }
 
     .nav-btn {
@@ -91,16 +118,12 @@ st.markdown("""
         transform: translateY(-4px) !important;
         box-shadow: 0 20px 40px rgba(34, 211, 238, 0.2) !important;
     }
-    .nav-btn:active {
-        transform: translateY(-2px) !important;
-        transition: transform 0.1s !important;
-    }
     .nav-btn::before {
         content: '';
         position: absolute;
         top: 0; left: -100%;
         width: 100%; height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
         transition: left 0.5s;
     }
     .nav-btn:hover::before {
@@ -143,16 +166,6 @@ st.markdown("""
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
     }
 
-    .stButton > button {
-        background: linear-gradient(135deg, #0891b2 0%, #4f46e5 100%) !important;
-        border-radius: 12px !important;
-        border: none !important;
-        height: 3.5rem !important;
-        font-weight: 700 !important;
-        transition: 0.4s all ease !important;
-        width: 100%;
-    }
-
     .metric-card {
         background: linear-gradient(135deg, rgba(34, 211, 238, 0.1), rgba(129, 140, 248, 0.1)) !important;
         border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -180,6 +193,48 @@ st.markdown("""
     .metric-card:hover::before {
         opacity: 1;
     }
+
+    /* ------------------ RESPONSIVE RULES ------------------ */
+
+    /* Medium and small devices */
+    @media (max-width: 768px) {
+        .brand-logo { font-size: 1.4rem; }
+        .glass-card { padding: 20px; border-radius: 16px; }
+        .section-header { font-size: 1.05rem; }
+        .stButton > button { font-size: 0.95rem; height: 48px !important; }
+        [data-testid="stSlider"], [data-testid="NumberInput"] input { font-size: 0.95rem !important; }
+        .glass-card p, .glass-card h3, .metric-card { opacity: 0.98 !important; }
+        [data-testid="stAppViewContainer"] { padding: 12px !important; }
+        .stButton > button { display: block !important; width: 100% !important; }
+        .stButton > button:focus { outline: none !important; box-shadow: 0 6px 18px rgba(34,211,238,0.18) !important; }
+        /* make columns stack more naturally */
+        .css-1lcbmhc.e1fqkh3o2, .css-1d391kg { flex-direction: column; gap: 12px; }
+        /* make spider/chart scale */
+        .stPlotlyChart > div, .stPlotlyChart { max-width: 100% !important; height: auto !important; }
+    }
+
+    /* Very small phones */
+    @media (max-width: 420px) {
+        .brand-logo { font-size: 1.1rem; letter-spacing:-0.5px; }
+        .glass-card { padding: 14px; border-radius: 12px; }
+        .metric-card { padding: 16px !important; }
+        h1 { font-size: 3.2rem !important; }
+        .glass-card[style*="height: 580px"] { height: auto !important; min-height: 350px; }
+        .stButton > button { font-size: 0.9rem; padding: 8px 10px; height: 44px !important; }
+        .brand-logo.animate__animated { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        /* increase contrast for inline faded texts on tiny screens */
+        [style*="opacity:0.6"], [style*="opacity:0.7"], [style*="opacity:0.75"], [style*="opacity:0.8"] {
+            opacity: 0.95 !important;
+            color: #e6eef8 !important;
+        }
+    }
+
+    /* Accessibility + touch targets */
+    button, .stButton > button {
+        -webkit-tap-highlight-color: rgba(255,255,255,0.04);
+        touch-action: manipulation;
+    }
+
 </style>
 """, unsafe_allow_html=True)
 
