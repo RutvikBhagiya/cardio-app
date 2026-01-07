@@ -127,6 +127,11 @@ st.markdown("""
     div[data-baseweb="select"] input {
         caret-color: transparent !important;
     }
+    
+    div[data-baseweb="pill"] span {
+        color: #ff0000 !important; /* Forces Red text */
+        font-weight: 700 !important;
+    }
 
     /* --- MODEL PERFORMANCE METRIC CARDS --- */
     .metric-card {
@@ -193,15 +198,6 @@ st.markdown("""
             padding: 1rem !important;
         }
     }
-    
-    div[data-baseweb="segmented-control"] button p {
-        color: #ff0000 !important;
-        font-weight: 700 !important;
-    }
-
-    div[data-baseweb="segmented-control"] button[aria-checked="true"] p {
-        color: #000000 !important;
-    }
 
     @media (max-width: 480px) {
         .glass-card { padding: 1rem; border-radius: 16px; }
@@ -227,14 +223,14 @@ def draw_nav():
     with c1:
         st.markdown('<div class="brand-logo animate__animated animate__pulse">CARDIO.SHIELD AI</div>', unsafe_allow_html=True)
     with c2:
-        if st.button("DIAGNOSTIC", use_container_width=True, key="nav_diag"):
+        if st.button("DIAGNOSTIC", width='stretch', key="nav_diag"):
             st.session_state.page = "Diagnostic"
             st.session_state.prediction_made = False
     with c3:
-        if st.button("ANALYTICS", use_container_width=True, key="nav_ana"):
+        if st.button("ANALYTICS", width='stretch', key="nav_ana"):
             st.session_state.page = "Analytics"
     with c4:
-        if st.button("ABOUT", use_container_width=True, key="nav_about"):
+        if st.button("ABOUT", width='stretch', key="nav_about"):
             st.session_state.page = "About"
 
 draw_nav()
@@ -280,7 +276,7 @@ if st.session_state.page == "Diagnostic":
                 sbp = st.slider("SBP", 80, 220, 120, on_change=clear_results, disabled=disabled, label_visibility="collapsed")
             with c2:
                 st.markdown('<p style="color:#F2F2F2; font-weight:bold;">Gender</p>', unsafe_allow_html=True)
-                gender_val = st.segmented_control("Gender", ["Female", "Male"], selection_mode="single", default="Female", on_change=clear_results, disabled=disabled, label_visibility="collapsed")
+                gender_val = st.pills("Gender", ["Female", "Male"], selection_mode="single", default="Female", on_change=clear_results, disabled=disabled,label_visibility="collapsed")
                 gender = 1 if gender_val == "Male" else 2
                 st.markdown('<p style="color:#F2F2F2; font-weight:bold;">Weight (kg)</p>', unsafe_allow_html=True)
                 weight = st.number_input("Weight", 30, 200, 75, on_change=clear_results, disabled=disabled, label_visibility="collapsed")
@@ -301,7 +297,7 @@ if st.session_state.page == "Diagnostic":
             smoke = life_c2.toggle("Smoking", on_change=clear_results, disabled=disabled)
             alco = life_c3.toggle("Alcohol", on_change=clear_results, disabled=disabled)
 
-            if st.button("🔬 COMPUTE RISK PROJECTION", use_container_width=True, disabled=st.session_state.prediction_made):
+            if st.button("🔬 COMPUTE RISK PROJECTION", width='stretch', disabled=st.session_state.prediction_made):
                 bmi = weight / ((height / 100) ** 2)
                 features = pd.DataFrame([[gender, sbp, dbp, chol, gluc, int(smoke), int(alco), int(active), age, bmi, sbp-dbp]], 
                                      columns=['gender', 'ap_hi', 'ap_lo', 'cholesterol', 'gluc', 'smoke', 'alco', 'active', 'age_years', 'bmi', 'bp_diff'])
@@ -323,7 +319,7 @@ if st.session_state.page == "Diagnostic":
                 </div>
             </div>
             """, unsafe_allow_html=True)
-            st.plotly_chart(st.session_state.static_spider_fig, use_container_width=True, config={'staticPlot': True})
+            st.plotly_chart(st.session_state.static_spider_fig, width='stretch', config={'staticPlot': True})
             st.markdown(f"""
             <div class="glass-card" style='display:flex; justify-content:space-around; background: rgba(255,255,255,0.05); padding: 15px; flex-wrap: wrap; gap: 10px;'>
                 <div style="flex: 1; text-align: center;"><p style='margin:0; opacity:0.5; font-size:0.8rem;'>BMI</p><b>{res['bmi']:.1f}</b></div>
@@ -346,7 +342,7 @@ elif st.session_state.page == "Analytics":
                 fig.add_shape(type='line', x0=0, y0=i, x1=imp_df['Importance'].iloc[i], y1=i, line=dict(color="#ff0000", width=3))
             fig.add_trace(go.Scatter(x=imp_df['Importance'], y=imp_df['Factor'], mode='markers', marker=dict(size=18, color=imp_df['Importance'], colorscale='Reds', line=dict(color="#ff0000", width=2))))
             fig.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', height=450, margin=dict(l=20, r=20, t=20, b=10), xaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.05)'))
-            st.plotly_chart(fig, use_container_width=True, config={"staticPlot": True})
+            st.plotly_chart(fig, width='stretch', config={"staticPlot": True})
         st.markdown("</div>", unsafe_allow_html=True)
 
     col_perf, col_conf = st.columns(2, gap="large")
