@@ -29,7 +29,7 @@ def clear_results():
     st.session_state.static_spider_fig = None
     st.session_state.prediction_made = False
 
-# --- CSS (PURE BLACK & RED THEME) ---
+# --- CSS (ULTRA-RESPONSIVE PURE BLACK & RED THEME) ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
@@ -57,14 +57,15 @@ st.markdown("""
         border: 1px solid rgba(255, 255, 255, 0.1);
         backdrop-filter: blur(20px);
         border-radius: 24px;
-        padding: 35px;
+        padding: 2rem;
         margin-bottom: 25px;
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+        width: 100%;
     }
 
     /* --- BRANDING --- */
     .brand-logo {
-        font-size: 2.2rem;
+        font-size: clamp(1.5rem, 5vw, 2.2rem);
         font-weight: 700;
         letter-spacing: -1.5px;
         background: linear-gradient(90deg, #ff0000, #818cf8);
@@ -87,15 +88,16 @@ st.markdown("""
 
     .section-header {
         color: #ff0000;
-        font-size: 1.4rem;
+        font-size: clamp(1.1rem, 3vw, 1.4rem);
         font-weight: 600;
         margin-bottom: 20px;
     }
 
     /* --- NAVBAR BUTTONS --- */
-    div[data-testid="column"]:nth-child(n+2) button p {
+    div[data-testid="column"] button p {
         color: #ff0000 !important;
         font-weight: 700;
+        font-size: clamp(0.7rem, 2vw, 1rem);
     }
 
     /* --- BUTTON STYLES --- */
@@ -107,6 +109,7 @@ st.markdown("""
         height: 3.5rem !important;
         font-weight: 700 !important;
         transition: 0.4s all ease !important;
+        width: 100%;
     }
 
     .stButton > button:hover {
@@ -132,8 +135,12 @@ st.markdown("""
         backdrop-filter: blur(15px) !important;
         transition: all 0.3s ease !important;
         text-align: center !important;
-        padding: 20px !important;
+        padding: 1.25rem !important;
         border-radius: 16px !important;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 100px;
     }
 
     .metric-card:hover {
@@ -145,23 +152,22 @@ st.markdown("""
     .conf-cell {
         background: rgba(17, 24, 39, 0.6) !important;
         text-align: center !important;
-        padding: 30px 10px !important;
+        padding: 1.5rem 0.5rem !important;
         border-radius: 16px !important;
-        transition: none !important; /* No Hover Animation */
+        transition: none !important;
     }
     .conf-cell h2 {
-        font-size: 2.8rem !important; /* Larger text size */
+        font-size: clamp(1.5rem, 4vw, 2.8rem) !important;
         margin: 0 !important;
         font-weight: 800 !important;
         line-height: 1 !important;
     }
     .conf-cell p {
-        font-size: 0.9rem !important;
+        font-size: clamp(0.6rem, 1.5vw, 0.9rem) !important;
         font-weight: 700 !important;
         text-transform: uppercase;
-        letter-spacing: 1.5px;
-        margin-top: 10px !important;
-        opacity: 0.8;
+        letter-spacing: 1px;
+        margin-top: 8px !important;
     }
 
     /* --- SLIDERS --- */
@@ -172,8 +178,35 @@ st.markdown("""
         box-shadow: 0 0 0 4px rgba(255, 0, 0, 0.2) !important;
     }
 
-    [data-testid="stSlider"] input[type=range]::-webkit-slider-thumb {
-        background: #ff0000 !important;
+    /* --- MOBILE & TABLET OPTIMIZATIONS --- */
+    @media (max-width: 1024px) {
+        .glass-card { padding: 1.5rem; }
+    }
+
+    @media (max-width: 768px) {
+        /* Stack columns on mobile */
+        [data-testid="column"] {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+        }
+        .metric-card, .conf-cell {
+            padding: 1rem !important;
+        }
+    }
+    
+    div[data-baseweb="segmented-control"] button p {
+        color: #ff0000 !important;
+        font-weight: 700 !important;
+    }
+
+    div[data-baseweb="segmented-control"] button[aria-checked="true"] p {
+        color: #000000 !important;
+    }
+
+    @media (max-width: 480px) {
+        .glass-card { padding: 1rem; border-radius: 16px; }
+        .brand-logo { text-align: center; margin-bottom: 1rem; }
+        h1 { font-size: 2.5rem !important; }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -283,7 +316,7 @@ if st.session_state.page == "Diagnostic":
             color = "#ef4444" if res['prob'] > 70 else "#facc15" if res['prob'] > 35 else "#22c55e"
             st.markdown(f"""
             <div class="glass-card" style="text-align: center;">
-                <h1 style='color: {color}; font-size: 4.5rem; margin:0;'>{res['prob']:.1f}%</h1>
+                <h1 style='color: {color}; font-size: clamp(3rem, 10vw, 4.5rem); margin:0;'>{res['prob']:.1f}%</h1>
                 <p style='opacity:0.6; letter-spacing: 3px;'>CUMULATIVE RISK</p>
                 <div style='width: 100%; height: 12px; background: rgba(255,255,255,0.05); border-radius: 20px; margin: 30px 0;'>
                     <div style='width: {res['prob']}%; height: 100%; background: linear-gradient(90deg, {color}, #fff); border-radius: 20px; box-shadow: 0 0 20px {color};'></div>
@@ -292,14 +325,14 @@ if st.session_state.page == "Diagnostic":
             """, unsafe_allow_html=True)
             st.plotly_chart(st.session_state.static_spider_fig, use_container_width=True, config={'staticPlot': True})
             st.markdown(f"""
-            <div class="glass-card" style='display:flex; justify-content:space-around; background: rgba(255,255,255,0.05); padding: 15px;'>
-                <div><p style='margin:0; opacity:0.5; font-size:0.8rem;'>BMI</p><b>{res['bmi']:.1f}</b></div>
-                <div><p style='margin:0; opacity:0.5; font-size:0.8rem;'>AGE</p><b>{res['age']}</b></div>
-                <div><p style='margin:0; opacity:0.5; font-size:0.8rem;'>BP</p><b>{res['sbp']}/{res['dbp']}</b></div>
+            <div class="glass-card" style='display:flex; justify-content:space-around; background: rgba(255,255,255,0.05); padding: 15px; flex-wrap: wrap; gap: 10px;'>
+                <div style="flex: 1; text-align: center;"><p style='margin:0; opacity:0.5; font-size:0.8rem;'>BMI</p><b>{res['bmi']:.1f}</b></div>
+                <div style="flex: 1; text-align: center;"><p style='margin:0; opacity:0.5; font-size:0.8rem;'>AGE</p><b>{res['age']}</b></div>
+                <div style="flex: 1; text-align: center;"><p style='margin:0; opacity:0.5; font-size:0.8rem;'>BP</p><b>{res['sbp']}/{res['dbp']}</b></div>
             </div>
             """, unsafe_allow_html=True)
         else:
-            st.markdown('<div class="glass-card" style="height: 580px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-style: dashed; border-color: #ff000033;"><div style="font-size: 5rem;">🔬</div><h3 style="color: #ff0000;">Waiting for Data</h3><p style="opacity: 0.6;">Enter patient vitals to generate profile.</p></div>', unsafe_allow_html=True)
+            st.markdown('<div class="glass-card" style="min-height: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-style: dashed; border-color: #ff000033;"><div style="font-size: 5rem;">🔬</div><h3 style="color: #ff0000;">Waiting for Data</h3><p style="opacity: 0.6;">Enter patient vitals to generate profile.</p></div>', unsafe_allow_html=True)
 
 # --- ANALYTICS PAGE ---
 elif st.session_state.page == "Analytics":
@@ -319,9 +352,9 @@ elif st.session_state.page == "Analytics":
     col_perf, col_conf = st.columns(2, gap="large")
     with col_perf:
         st.markdown(f"""
-        <div class="glass-card" style="height: 500px;">
+        <div class="glass-card">
             <div class="section-header">🎯 Model Performance</div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px;">
                 <div class="metric-card"><h2 style='color:#ff0000; margin:0;'>73%</h2><p>ACCURACY</p></div>
                 <div class="metric-card"><h2 style='color:#ff0000; margin:0;'>68.1%</h2><p>RECALL</p></div>
                 <div class="metric-card"><h2 style='color:#ff0000; margin:0;'>71.2%</h2><p>F1-SCORE</p></div>
@@ -331,7 +364,7 @@ elif st.session_state.page == "Analytics":
         """, unsafe_allow_html=True)
     with col_conf:
         st.markdown(f"""
-        <div class="glass-card" style="height: 500px;">
+        <div class="glass-card">
             <div class="section-header">📈 Confusion Matrix</div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div class="conf-cell" style="border: 2px solid #10b981;">
