@@ -78,7 +78,7 @@ st.markdown("""
     }
     
     label, .stMarkdown p {
-        color: #e5e7eb !important;
+        color: #ffffff !important;
         opacity: 1 !important;
     }
 
@@ -122,7 +122,7 @@ st.markdown("""
         overflow: hidden;
     }
     .nav-btn:hover {
-        background: rgba(34, 211, 238, 0.15) !important;
+        background: rgba(255, 255, 238, 0.15) !important;
         border-color: #22d3ee !important;
         transform: translateY(-4px) !important;
         box-shadow: 0 20px 40px rgba(34, 211, 238, 0.2) !important;
@@ -259,12 +259,15 @@ st.markdown("""
         border: 1px solid rgba(148, 163, 184, 0.35) !important;
     }
 
+    div[data-baseweb="select"] input {
+        caret-color: transparent !important;
+    }
+
     /* Slider & number labels */
     [data-testid="stWidgetLabel"] {
         color: #e6eef8 !important;
         opacity: 1 !important;
     }
-
 
 </style>
 """, unsafe_allow_html=True)
@@ -354,31 +357,49 @@ if st.session_state.page == "Diagnostic":
 
             c1, c2 = st.columns(2)
             with c1:
-                age = st.slider("Age", 18, 100, 50, on_change=clear_results, disabled=disabled)
-                height = st.number_input("Height (cm)", 100, 250, 175, on_change=clear_results, disabled=disabled)
-                sbp = st.slider("Systolic BP", 80, 220, 120, on_change=clear_results, disabled=disabled)
+                st.markdown(f'<p style="color:{"#F2F2F2"}; font-size:16px; font-weight:bold;">Age</p>', unsafe_allow_html=True)
+                age = st.slider("Age", 18, 100, 50, on_change=clear_results, disabled=disabled, label_visibility="collapsed" )
+
+                st.markdown(f'<p style="color:{"#F2F2F2"}; font-size:16px; font-weight:bold;">Height</p>', unsafe_allow_html=True)
+                height = st.number_input("Height (cm)", 100, 250, 175, on_change=clear_results, disabled=disabled, label_visibility="collapsed" )
+
+                st.markdown(f'<p style="color:{"#F2F2F2"}; font-size:16px; font-weight:bold;">Systolic BP</p>', unsafe_allow_html=True)
+                sbp = st.slider("Systolic BP", 80, 220, 120, on_change=clear_results, disabled=disabled, label_visibility="collapsed" )
+
             with c2:
-                gender_val = st.selectbox("Gender", ["Female", "Male"], on_change=clear_results, disabled=disabled)
-                gender = 1 if gender_val == "Female" else 2
-                weight = st.number_input("Weight (kg)", 30, 200, 75, on_change=clear_results, disabled=disabled)
-                dbp = st.slider("Diastolic BP", 40, 140, 80, on_change=clear_results, disabled=disabled)
+                st.markdown(f'<p style="color:{"#F2F2F2"}; font-size:16px; font-weight:bold;">Gender</p>', unsafe_allow_html=True)
+                gender_val = st.segmented_control(
+                    "Gender", 
+                    ["Female", "Male"], 
+                    selection_mode="single", 
+                    default="Female",
+                    on_change=clear_results, 
+                    disabled=disabled,
+                    label_visibility="collapsed"
+                )
+                
+                if not gender_val: gender_val = "Female"
+                gender = 1 if gender_val == "Male" else 2
+
+                st.markdown(f'<p style="color:{"#F2F2F2"}; font-size:16px; font-weight:bold;">Weight(kg)</p>', unsafe_allow_html=True)
+                weight = st.number_input("Weight (kg)", 30, 200, 75, on_change=clear_results, disabled=disabled, label_visibility="collapsed")
+                st.markdown(f'<p style="color:{"#F2F2F2"}; font-size:16px; font-weight:bold;">Diastolic BP</p>', unsafe_allow_html=True)
+                dbp = st.slider("Diastolic BP", 40, 140, 80, on_change=clear_results, disabled=disabled, label_visibility="collapsed")
 
             st.markdown("<hr style='opacity:0.1'>", unsafe_allow_html=True)
 
-            st.markdown(
-                "<p style='font-size:0.85rem; opacity:0.6; margin-bottom:5px;'>Lab Markers</p>",
-                unsafe_allow_html=True
-            )
+            st.markdown(f'<p style="color:{"#F2F2F2"}; font-size:18px; font-weight:bold;">Lab Markers</p>', unsafe_allow_html=True)     
+            
             lab_c1, lab_c2 = st.columns(2)
             with lab_c1:
-                chol = st.select_slider("Cholesterol", [1, 2, 3], value=1, on_change=clear_results, disabled=disabled)
+                st.markdown(f'<p style="color:{"#F2F2F2"}; font-size:14px; font-weight:bold;">Cholesterol</p>', unsafe_allow_html=True)
+                chol = st.select_slider("Cholesterol", [1, 2, 3], value=1, on_change=clear_results, disabled=disabled, label_visibility="collapsed")
             with lab_c2:
-                gluc = st.select_slider("Glucose", [1, 2, 3], value=1, on_change=clear_results, disabled=disabled)
+                st.markdown(f'<p style="color:{"#F2F2F2"}; font-size:14px; font-weight:bold;">Glucose</p>', unsafe_allow_html=True)
+                gluc = st.select_slider("Glucose", [1, 2, 3], value=1, on_change=clear_results, disabled=disabled, label_visibility="collapsed")
 
-            st.markdown(
-                "<p style='font-size:0.85rem; opacity:0.6; margin-top:15px; margin-bottom:5px;'>Lifestyle Factors</p>",
-                unsafe_allow_html=True
-            )
+            st.markdown(f'<p style="color:{"#F2F2F2"}; font-size:18px; font-weight:bold;">Lifestyle Factors</p>', unsafe_allow_html=True)
+             
             life_c1, life_c2, life_c3 = st.columns(3)
             with life_c1:
                 active = st.toggle("Active", True, on_change=clear_results, disabled=disabled)
@@ -538,7 +559,7 @@ elif st.session_state.page == "Analytics":
     # MODEL PERFORMANCE CARD
     with col_perf:
         st.markdown("""
-        <div class="glass-card" style="height: 520px; padding: 30px;">
+        <div class="glass-card" style="height: 400px; padding: 30px;">
             <div class="section-header" style="margin-bottom: 25px;">🎯 Model Performance</div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                 <div class="metric-card">
@@ -566,7 +587,7 @@ elif st.session_state.page == "Analytics":
     # CONFUSION MATRIX CARD
     with col_conf:
         st.markdown("""
-        <div class="glass-card" style="height: 520px; padding: 30px;">
+        <div class="glass-card" style="height: 400px; padding: 30px;">
             <div class="section-header" style="margin-bottom: 25px;">📈 Confusion Matrix</div>
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
                 <div style="text-align: center; padding: 20px; background: rgba(16, 185, 129, 0.15); border-radius: 16px; border: 2px solid rgba(16, 185, 129, 0.4);">
@@ -609,7 +630,6 @@ else:
             <p style='opacity:0.8;'>Arroundly on <b>54296</b> records trained and tested with <b>13574</b> records</p>
             <p style='color:#818cf8; font-weight:600;'>Validation Method: Cross-Validation Recall</p>
             <p style='opacity:0.8;'><b>Feature Handling:</b> No feature scaling required. Tree-based splits operate directly on raw clinical values.</p>
-            <p style='opacity:0.75; font-size:13px;'>Outlier filtering applied to BMI and Blood Pressure ranges to improve data reliability and model stability.</p>
         </div>
         """, unsafe_allow_html=True)
     with c2:
