@@ -182,6 +182,10 @@ st.markdown("""
         border-radius: 50% !important;
         box-shadow: 0 0 0 4px rgba(255, 0, 0, 0.2) !important;
     }
+    
+    div[data-testid="stPill"] button:not([aria-pressed="true"]) {
+        color: black !important;
+    }
 
     /* --- MOBILE & TABLET OPTIMIZATIONS --- */
     @media (max-width: 1024px) {
@@ -392,7 +396,7 @@ else:
     with c2:
         st.markdown("""<div class="glass-card" style="height: 420px; border-left: 5px solid #ef4444;">
                     <div class="section-header" style="color:#ef4444;">⚠️ Project Protocol</div>
-                    <p>Academic project for placement demonstration. Not for medical diagnosis.</p>
+                    <p>Academic project for cardio prediction. Not for medical diagnosis.</p>
                     <p style='opacity:0.8;'><b>Classification:</b> Beginner Level Academic Project.</p>
                     <p style='opacity:0.8;'><b>Accuracy:</b> Clinically simulated for educational demonstration. Not for medical diagnosis.</p>
                     <p style='opacity:0.8;'><b>Privacy:</b> Zero-Retention. No data is stored on the server.</p>
